@@ -42,7 +42,7 @@ class HFLM(BaseLM):
 
         # pretrained tokenizer for neo is broken for now so just hard-coding this to gpt2
         self.tokenizer = transformers.AutoTokenizer.from_pretrained(
-            pretrained if tokenizer is None else tokenizer,
+            "gpt2",
             revision=revision,
             subfolder=subfolder,
         )
