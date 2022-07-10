@@ -30,7 +30,7 @@ class HFLM(BaseLM):
 
         # TODO: update this to be less of a hack once subfolder is fixed in HF
         self.gpt2 = transformers.AutoModelForCausalLM.from_pretrained(
-            pretrained,
+            "gpt2",
             revision=revision + ("/" + subfolder if subfolder is not None else ""),
         ).to(self.device)
         self.gpt2.eval()
