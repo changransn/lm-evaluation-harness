@@ -127,4 +127,28 @@ class Lambada(datasets.GeneratorBasedBuilder):
         with open(filepath, encoding="utf-8") as f:
             for key, row in enumerate(f):
                 data = json.loads(row)
+                import nltk
+                data['text'] = data['text'].replace("* ","").replace(" *", "")
+                data['text'] = data['text'].replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")                    
+                nltk_tokenized = nltk.tokenize.sent_tokenize(data['text'])
+                
+                # data['text'] = "".join([x[0].upper() + x[1:] for x in nltk_tokenized])
+                # data['text'] = " ".join([x[0].upper() + x[1:] for x in nltk_tokenized])
+                # data['text'] = " ".join([x for x in nltk_tokenized])
+                res = []
+                for x in nltk_tokenized:
+                    x = x.strip()
+                    if not x: # empty line
+                        continue
+                    if x[0] in ["'", "\""] and len(x) > 1:
+                        res.append(x[0] + x[1].upper() + x[2:])
+                    else:
+                        res.append(x[0].upper() + x[1:])
+                
+                data["text"] = " ".join(res)
+                data["text"] = "<|endoftext|>" + data["text"]
+
+                
+                
+
                 yield key, {"text": data["text"]}

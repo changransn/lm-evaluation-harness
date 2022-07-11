@@ -56,12 +56,18 @@ class ARCEasy(MultipleChoiceTask):
         # of {'1', '2', '3', '4', '5'}. We map them back to letters.
         num_to_letter = {"1": "A", "2": "B", "3": "C", "4": "D", "5": "E"}
         doc["answerKey"] = num_to_letter.get(doc["answerKey"], doc["answerKey"])
+
+        doc["question"] = data_clean(doc["question"])
+        doc["choices"]["text"] = [data_clean(x) for x in doc["choices"]["text"]]
+
+        # "query": "Question: " + doc["question"] + "\nAnswer:",
         out_doc = {
             "id": doc["id"],
-            "query": "Question: " + doc["question"] + "\nAnswer:",
+            "query": "Question: " + doc["question"] + " Answer:",
             "choices": doc["choices"]["text"],
             "gold": ["A", "B", "C", "D", "E"].index(doc["answerKey"]),
         }
+        
         return out_doc
 
     def doc_to_text(self, doc):
@@ -77,3 +83,24 @@ class ARCEasy(MultipleChoiceTask):
 class ARCChallenge(ARCEasy):
     DATASET_PATH = "ai2_arc"
     DATASET_NAME = "ARC-Challenge"
+
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

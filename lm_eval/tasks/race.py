@@ -96,25 +96,52 @@ class RACE(Task):
     @classmethod
     def get_answer_option(cls, problem):
         answer = cls.letter_to_num[problem["answer"]]
-        return problem["options"][answer]
+        return data_clean(problem["options"][answer])
 
     @classmethod
     def last_problem(cls, doc):
         return doc["problems"][-1]
 
     def doc_to_text(self, doc):
-        text = "Article: " + doc["article"] + "\n\n"
+        # text = "Article: " + doc["article"] + "\n\n"
+        doc["article"] = data_clean(doc["article"])
+        text = "Article: " + doc["article"] + " "
         for problem in doc["problems"][:-1]:
+            problem["question"] = data_clean(problem["question"])
             if problem["question"][-6:] == "  _  .":
                 text += (
-                    problem["question"][-5:] + self.get_answer_option(problem) + "\n"
+                    # problem["question"][-5:] + self.get_answer_option(problem) + "\n"
+                    # Seems this was a bug
+                    problem["question"][:-5] + self.get_answer_option(problem) + " "
                 )
             else:
-                question = "Question: " + problem["question"] + "\n"
-                answer = "Answer: " + self.get_answer_option(problem) + "\n"
-                text += question + answer
-        text += self.last_problem(doc)["question"]
+                # question = "Question: " + problem["question"] + "\n"
+                # answer = "Answer: " + self.get_answer_option(problem) + "\n"
+                question = "Question: " + problem["question"] + " "
+                answer = "Answer: " + self.get_answer_option(problem) + " "                
+                text += question + answer + " "
+        # text += self.last_problem(doc)["question"]
+        text += "Question: " + self.last_problem(doc)["question"] + " "
+        text += "Answer:"
+
+        # return text
+        print(doc)
+        print(text)
         return text
+
+    # def doc_to_text(self, doc):
+    #     text = "Article: " + doc["article"] + "\n\n"
+    #     for problem in doc["problems"][:-1]:
+    #         if problem["question"][-6:] == "  _  .":
+    #             text += (
+    #                 problem["question"][-5:] + self.get_answer_option(problem) + "\n"
+    #             )
+    #         else:
+    #             question = "Question: " + problem["question"] + "\n"
+    #             answer = "Answer: " + self.get_answer_option(problem) + "\n"
+    #             text += question + answer
+    #     text += self.last_problem(doc)["question"]
+    #     return text
 
     def should_decontaminate(self):
         return True
@@ -123,6 +150,9 @@ class RACE(Task):
         return doc["article"]
 
     def doc_to_target(self, doc):
+        # return " " + self.get_answer_option(self.last_problem(doc))
+        print("doc_to_target")
+        print(" " + self.get_answer_option(self.last_problem(doc)))
         return " " + self.get_answer_option(self.last_problem(doc))
 
     def construct_requests(self, doc, ctx):
@@ -171,3 +201,23 @@ class RACE(Task):
             whether a higher value of the submetric is better
         """
         return {"acc": True}
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text
