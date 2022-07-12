@@ -102,3 +102,6 @@ def data_clean(text):
     text = " ".join(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
+
+def add_period(text):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")

@@ -6,7 +6,8 @@ import fnmatch
 from lm_eval import tasks, evaluator
 
 logging.getLogger("openai").setLevel(logging.WARNING)
-
+import transformers
+transformers.logging.set_verbosity_error()
 
 class MultiChoice:
     def __init__(self, choices):

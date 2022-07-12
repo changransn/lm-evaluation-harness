@@ -62,7 +62,7 @@ class PiQA(MultipleChoiceTask):
         return out_doc
 
     def doc_to_text(self, doc):
-        return "Question: " + doc["goal"] + " Answer:"
+        return "Question: " + add_period(doc["goal"]) + " Answer:"
         # return "Question: " + doc["goal"] + "\nAnswer:"
 
     def should_decontaminate(self):
@@ -91,3 +91,6 @@ def data_clean(text):
     text = " ".join(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
+
+def add_period(text):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")    

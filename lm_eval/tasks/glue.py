@@ -69,7 +69,7 @@ class CoLA(Task):
 
     def doc_to_text(self, doc):
         return "{} Question: Does this sentence make sense? Answer:".format(
-            data_clean(doc["sentence"])
+            add_period(data_clean(doc["sentence"]))
         )        
         # return "{}\nQuestion: Does this sentence make sense?\nAnswer:".format(
         #     doc["sentence"]
@@ -187,9 +187,8 @@ class MNLI(Task):
         doc["premise"] = data_clean(doc["premise"])
         doc["hypothesis"] = data_clean(doc["hypothesis"])
         return "{} Question: {} True, False or Neither? Answer:".format(
-            doc["premise"],
-            doc["hypothesis"].strip()
-            + ("" if doc["hypothesis"].strip().endswith(".") else "."),
+            add_period(doc["premise"]),
+            add_period(doc["hypothesis"].strip()),
         )        
         # return "{}\nQuestion: {} True, False or Neither?\nAnswer:".format(
         #     doc["premise"],
@@ -361,8 +360,8 @@ class RTE(Task):
 
     def doc_to_text(self, doc):
         return "{} Question: {} True or False? Answer:".format(
-            data_clean(doc["sentence1"]),
-            data_clean(doc["sentence2"]),
+            add_period(data_clean(doc["sentence1"])),
+            add_period(data_clean(doc["sentence2"])),
         )
         
         # return "{}\nQuestion: {} True or False?\nAnswer:".format(
@@ -598,3 +597,6 @@ def data_clean(text):
     text = " ".join(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
+
+def add_period(text):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")

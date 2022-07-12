@@ -63,7 +63,7 @@ class ARCEasy(MultipleChoiceTask):
         # "query": "Question: " + doc["question"] + "\nAnswer:",
         out_doc = {
             "id": doc["id"],
-            "query": "Question: " + doc["question"] + " Answer:",
+            "query": "Question: " + add_period(doc["question"]) + " Answer:",
             "choices": doc["choices"]["text"],
             "gold": ["A", "B", "C", "D", "E"].index(doc["answerKey"]),
         }
@@ -104,3 +104,6 @@ def data_clean(text):
     text = " ".join(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
+
+def add_period(text):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")    

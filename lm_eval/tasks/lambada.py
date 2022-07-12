@@ -79,3 +79,6 @@ class LAMBADA(Task):
 
     def higher_is_better(self):
         return {"ppl": False, "acc": True}
+
+def add_period(text):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")

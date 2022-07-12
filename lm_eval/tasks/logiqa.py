@@ -78,8 +78,8 @@ class LogiQA(MultipleChoiceTask):
             # return prompt
 
         choices = ["a", "b", "c", "d"]
-        doc["context"] = data_clean(doc["context"])
-        doc["options"] = [data_clean(x) for x in doc["options"]]
+        doc["context"] = add_period(data_clean(doc["context"]))
+        doc["options"] = [add_period(data_clean(x)) for x in doc["options"]]
         return {
             "passage": doc["context"],  # Used for decontamination
             "query": format_example(doc, choices),
@@ -115,3 +115,6 @@ def data_clean(text):
     text = " ".join(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
+
+def add_period(text):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")

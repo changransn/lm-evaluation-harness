@@ -108,7 +108,7 @@ class RACE(Task):
     def doc_to_text(self, doc):
         # text = "Article: " + doc["article"] + "\n\n"
         doc["article"] = data_clean(doc["article"])
-        text = "Article: " + doc["article"] + " "
+        text = "Article: " + add_period(doc["article"]) + " "
 
         # Replace all "  _  ." with "?"
         for idx in range(len(doc["problems"])):
@@ -120,11 +120,11 @@ class RACE(Task):
             problem["question"] = data_clean(problem["question"])
             # question = "Question: " + problem["question"] + "\n"
             # answer = "Answer: " + self.get_answer_option(problem) + "\n"
-            question = "Question: " + problem["question"] + " "
-            answer = "Answer: " + self.get_answer_option(problem) + " "                
+            question = "Question: " + add_period(problem["question"]) + " "
+            answer = "Answer: " + add_period(self.get_answer_option(problem)) + " "                
             text += question + answer
         # text += self.last_problem(doc)["question"]
-        text += "Question: " + self.last_problem(doc)["question"] + " "
+        text += "Question: " + add_period(self.last_problem(doc)["question"]) + " "
         text += "Answer:"
 
         # return text
@@ -154,8 +154,8 @@ class RACE(Task):
 
     def doc_to_target(self, doc):
         # return " " + self.get_answer_option(self.last_problem(doc))
-        print("doc_to_target")
-        print(" " + self.get_answer_option(self.last_problem(doc)))
+        # print("doc_to_target")
+        # print(" " + self.get_answer_option(self.last_problem(doc)))
         return " " + self.get_answer_option(self.last_problem(doc))
 
     def construct_requests(self, doc, ctx):
@@ -224,3 +224,6 @@ def data_clean(text):
     text = " ".join(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
+
+def add_period(text):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")    

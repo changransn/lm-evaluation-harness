@@ -55,7 +55,7 @@ class BoolQ(Task):
         return self.dataset["validation"]
 
     def doc_to_text(self, doc):
-        return f"{data_clean(doc['passage'])} Question: {data_clean(doc['question'])}? Answer:"
+        return f"{add_period(data_clean(doc['passage']))} Question: {add_period(data_clean(doc['question']))}? Answer:"
         # return f"{doc['passage']}\nQuestion: {doc['question']}?\nAnswer:"
 
     def should_decontaminate(self):
@@ -519,3 +519,6 @@ def data_clean(text):
     text = " ".join(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
+
+def add_period(text):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")
