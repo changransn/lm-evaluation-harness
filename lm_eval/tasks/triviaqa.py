@@ -52,7 +52,8 @@ class TriviaQA(Task):
         raise NotImplementedError()
 
     def doc_to_text(self, doc):
-        return f"Question: {doc['question']}\nAnswer:"
+        return f"Question: {data_clean(doc['question'])} Answer:"        
+        # return f"Question: {doc['question']}\nAnswer:"
 
     def should_decontaminate(self):
         return True
@@ -61,7 +62,7 @@ class TriviaQA(Task):
         return doc["question"]
 
     def doc_to_target(self, doc):
-        return " " + doc["answer"]["value"]
+        return " " + data_clean(doc["answer"]["value"])
 
     def _remove_prefixes(self, aliases):
         # Optimization: Remove any alias that has a strict prefix elsewhere in the list
@@ -90,3 +91,24 @@ class TriviaQA(Task):
 
     def higher_is_better(self):
         return {"acc": True}
+
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

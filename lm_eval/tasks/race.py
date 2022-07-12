@@ -96,7 +96,10 @@ class RACE(Task):
     @classmethod
     def get_answer_option(cls, problem):
         answer = cls.letter_to_num[problem["answer"]]
-        return data_clean(problem["options"][answer])
+        answer = data_clean(problem["options"][answer])
+        if not answer.endswith("."):
+            return answer + "."
+        return answer
 
     @classmethod
     def last_problem(cls, doc):
@@ -106,27 +109,27 @@ class RACE(Task):
         # text = "Article: " + doc["article"] + "\n\n"
         doc["article"] = data_clean(doc["article"])
         text = "Article: " + doc["article"] + " "
+
+        # Replace all "  _  ." with "?"
+        for idx in range(len(doc["problems"])):
+            doc["problems"][idx]["question"] = doc["problems"][idx]["question"].replace("  _  .", "?")
+
         for problem in doc["problems"][:-1]:
+            
+                          
             problem["question"] = data_clean(problem["question"])
-            if problem["question"][-6:] == "  _  .":
-                text += (
-                    # problem["question"][-5:] + self.get_answer_option(problem) + "\n"
-                    # Seems this was a bug
-                    problem["question"][:-5] + self.get_answer_option(problem) + " "
-                )
-            else:
-                # question = "Question: " + problem["question"] + "\n"
-                # answer = "Answer: " + self.get_answer_option(problem) + "\n"
-                question = "Question: " + problem["question"] + " "
-                answer = "Answer: " + self.get_answer_option(problem) + " "                
-                text += question + answer + " "
+            # question = "Question: " + problem["question"] + "\n"
+            # answer = "Answer: " + self.get_answer_option(problem) + "\n"
+            question = "Question: " + problem["question"] + " "
+            answer = "Answer: " + self.get_answer_option(problem) + " "                
+            text += question + answer
         # text += self.last_problem(doc)["question"]
         text += "Question: " + self.last_problem(doc)["question"] + " "
         text += "Answer:"
 
         # return text
-        print(doc)
-        print(text)
+        # print(doc)
+        # print(text)
         return text
 
     # def doc_to_text(self, doc):

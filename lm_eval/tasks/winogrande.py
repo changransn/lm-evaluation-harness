@@ -67,7 +67,8 @@ class Winogrande(Task):
         # Substitute the pronoun in the sentence with the specified option
         # and ignore everything after.
         pronoun_loc = doc["sentence"].index("_")
-        return doc["sentence"][:pronoun_loc] + option
+        return data_clean(doc["sentence"][:pronoun_loc]) + data_clean(option)
+        # return doc["sentence"][:pronoun_loc]) + option
 
     def doc_to_target(self, doc):
         return self.partial_target(doc)
@@ -76,7 +77,9 @@ class Winogrande(Task):
     def partial_target(cls, doc):
         # The target is everything after the document specified pronoun.
         pronoun_loc = doc["sentence"].index("_") + 1
-        return " " + doc["sentence"][pronoun_loc:].strip()
+        return " " + data_clean(doc["sentence"][pronoun_loc:].strip())        
+        # return " " + doc["sentence"][pronoun_loc:].strip()
+        
 
     def construct_requests(self, doc, ctx):
         """Uses RequestFactory to construct Requests and returns an iterable of
@@ -130,3 +133,24 @@ class Winogrande(Task):
             whether a higher value of the submetric is better
         """
         return {"acc": True}
+
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

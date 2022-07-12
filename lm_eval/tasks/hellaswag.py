@@ -50,12 +50,19 @@ class HellaSwag(MultipleChoiceTask):
         return map(self._process_doc, self.dataset["validation"])
 
     def _process_doc(self, doc):
-        ctx = doc["ctx_a"] + " " + doc["ctx_b"].capitalize()
+        # ctx = doc["ctx_a"] + " " + doc["ctx_b"].capitalize()
+        ctx = doc["ctx_a"] + " " + doc["ctx_b"]
         out_doc = {
-            "query": self.preprocess(doc["activity_label"] + ": " + ctx),
-            "choices": [self.preprocess(ending) for ending in doc["endings"]],
+            "query": data_clean(self.preprocess(doc["activity_label"] + ": " + ctx)),
+            "choices": [data_clean(self.preprocess(ending)) for ending in doc["endings"]],
             "gold": int(doc["label"]),
-        }
+        }        
+        # ctx = doc["ctx_a"] + " " + doc["ctx_b"].capitalize()
+        # out_doc = {
+        #     "query": self.preprocess(doc["activity_label"] + ": " + ctx),
+        #     "choices": [self.preprocess(ending) for ending in doc["endings"]],
+        #     "gold": int(doc["label"]),
+        # }
         return out_doc
 
     @classmethod
@@ -68,10 +75,30 @@ class HellaSwag(MultipleChoiceTask):
         return text
 
     def doc_to_text(self, doc):
-        return doc["query"]
+        return data_clean(doc["query"])
 
     def should_decontaminate(self):
         return True
 
     def doc_to_decontamination_query(self, doc):
         return doc["query"]
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

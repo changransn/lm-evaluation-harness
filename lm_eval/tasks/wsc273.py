@@ -94,6 +94,7 @@ class WinogradSchemaChallenge273(Task):
         return rnd.sample(list(self._fewshot_docs), k)
 
     def doc_to_text(self, doc):
+
         return self.partial_context(doc, doc["options"][doc["label"]])
 
     def should_decontaminate(self):

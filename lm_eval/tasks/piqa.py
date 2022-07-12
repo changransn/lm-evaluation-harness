@@ -50,17 +50,44 @@ class PiQA(MultipleChoiceTask):
 
     def _process_doc(self, doc):
         out_doc = {
-            "goal": doc["goal"],
-            "choices": [doc["sol1"], doc["sol2"]],
+            "goal": data_clean(doc["goal"]),
+            "choices": [data_clean(doc["sol1"]), data_clean(doc["sol2"])],
             "gold": doc["label"],
-        }
+        }        
+        # out_doc = {
+        #     "goal": doc["goal"],
+        #     "choices": [doc["sol1"], doc["sol2"]],
+        #     "gold": doc["label"],
+        # }
         return out_doc
 
     def doc_to_text(self, doc):
-        return "Question: " + doc["goal"] + "\nAnswer:"
+        return "Question: " + doc["goal"] + " Answer:"
+        # return "Question: " + doc["goal"] + "\nAnswer:"
 
     def should_decontaminate(self):
         return True
 
     def doc_to_decontamination_query(self, doc):
         return doc["goal"]
+
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

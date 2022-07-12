@@ -64,14 +64,22 @@ class LogiQA(MultipleChoiceTask):
             D. <choice4>
             Answer:
             """
-            prompt = "Passage: " + doc["context"] + "\n"
-            prompt += "Question: " + doc["question"] + "\nChoices:\n"
+            prompt = "Passage: " + doc["context"] + " "
+            prompt += "Question: " + doc["question"] + " Choices: "
             for choice, option in zip(choices, doc["options"]):
-                prompt += f"{choice.upper()}. {option}\n"
+                prompt += f"{choice.upper()}. {option} "
             prompt += "Answer:"
-            return prompt
+            return prompt            
+            # prompt = "Passage: " + doc["context"] + "\n"
+            # prompt += "Question: " + doc["question"] + "\nChoices:\n"
+            # for choice, option in zip(choices, doc["options"]):
+            #     prompt += f"{choice.upper()}. {option}\n"
+            # prompt += "Answer:"
+            # return prompt
 
         choices = ["a", "b", "c", "d"]
+        doc["context"] = data_clean(doc["context"])
+        doc["options"] = [data_clean(x) for x in doc["options"]]
         return {
             "passage": doc["context"],  # Used for decontamination
             "query": format_example(doc, choices),
@@ -80,10 +88,30 @@ class LogiQA(MultipleChoiceTask):
         }
 
     def doc_to_text(self, doc):
-        return doc["query"]
+        return data_clean(doc["query"])
 
     def should_decontaminate(self):
         return True
 
     def doc_to_decontamination_query(self, doc):
         return doc["passage"]
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

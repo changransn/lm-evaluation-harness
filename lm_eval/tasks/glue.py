@@ -68,9 +68,12 @@ class CoLA(Task):
         return self.dataset["validation"]
 
     def doc_to_text(self, doc):
-        return "{}\nQuestion: Does this sentence make sense?\nAnswer:".format(
-            doc["sentence"]
-        )
+        return "{} Question: Does this sentence make sense? Answer:".format(
+            data_clean(doc["sentence"])
+        )        
+        # return "{}\nQuestion: Does this sentence make sense?\nAnswer:".format(
+        #     doc["sentence"]
+        # )
 
     def should_decontaminate(self):
         return True
@@ -79,11 +82,14 @@ class CoLA(Task):
         return doc["sentence"]
 
     def doc_to_target(self, doc):
-        return " {}".format({1: "yes", 0: "no"}[doc["label"]])
+        # return " {}".format({1: "yes", 0: "no"}[doc["label"]])
+        return " {}".format({1: "Yes", 0: "No"}[doc["label"]])
 
     def construct_requests(self, doc, ctx):
-        ll_true, _ = rf.loglikelihood(ctx, " yes")
-        ll_false, _ = rf.loglikelihood(ctx, " no")
+        # ll_true, _ = rf.loglikelihood(ctx, " yes")
+        # ll_false, _ = rf.loglikelihood(ctx, " no")
+        ll_true, _ = rf.loglikelihood(ctx, " Yes")
+        ll_false, _ = rf.loglikelihood(ctx, " No")        
         return ll_true, ll_false
 
     def process_results(self, doc, results):
@@ -178,11 +184,18 @@ class MNLI(Task):
             return self.dataset["test_matched"]
 
     def doc_to_text(self, doc):
-        return "{}\nQuestion: {} True, False or Neither?\nAnswer:".format(
+        doc["premise"] = data_clean(doc["premise"])
+        doc["hypothesis"] = data_clean(doc["hypothesis"])
+        return "{} Question: {} True, False or Neither? Answer:".format(
             doc["premise"],
             doc["hypothesis"].strip()
             + ("" if doc["hypothesis"].strip().endswith(".") else "."),
-        )
+        )        
+        # return "{}\nQuestion: {} True, False or Neither?\nAnswer:".format(
+        #     doc["premise"],
+        #     doc["hypothesis"].strip()
+        #     + ("" if doc["hypothesis"].strip().endswith(".") else "."),
+        # )
 
     def doc_to_target(self, doc):
         # True = entailment
@@ -347,10 +360,15 @@ class RTE(Task):
         return self.dataset["validation"]
 
     def doc_to_text(self, doc):
-        return "{}\nQuestion: {} True or False?\nAnswer:".format(
-            doc["sentence1"],
-            doc["sentence2"],
+        return "{} Question: {} True or False? Answer:".format(
+            data_clean(doc["sentence1"]),
+            data_clean(doc["sentence2"]),
         )
+        
+        # return "{}\nQuestion: {} True or False?\nAnswer:".format(
+        #     doc["sentence1"],
+        #     doc["sentence2"],
+        # )
 
     def doc_to_target(self, doc):
         # 0 = entailment
@@ -560,3 +578,23 @@ class STSB(Task):
         """
         # TODO: implement evaluation.
         raise NotImplementedError("Evaluation not implemented")
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

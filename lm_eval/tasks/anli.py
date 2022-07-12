@@ -64,12 +64,15 @@ class ANLIBase(Task):
         # of the prompt (yes, repeating it!). also, " True, False, or Neither?" is directly
         # appended onto the question, with no "Answer:" or even a newline. Do we *really*
         # want to do it exactly as OA did?
-        return (
-            doc["premise"]
-            + "\nQuestion: "
-            + doc["hypothesis"]
-            + " True, False, or Neither?\nAnswer:"
-        )
+
+        content = data_clean(doc["premise"]) + " Question: " + data_clean(doc["hypothesis"]) + " True, False, or Neither? Answer:"
+        return content
+        # return (
+        #     doc["premise"]
+        #     + "\nQuestion: "
+        #     + doc["hypothesis"]
+        #     + " True, False, or Neither?\nAnswer:"
+        # )
 
     def should_decontaminate(self):
         return True
@@ -140,3 +143,23 @@ class ANLIRound2(ANLIBase):
 
 class ANLIRound3(ANLIBase):
     SPLIT = 3
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

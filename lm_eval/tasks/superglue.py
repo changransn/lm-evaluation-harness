@@ -55,7 +55,8 @@ class BoolQ(Task):
         return self.dataset["validation"]
 
     def doc_to_text(self, doc):
-        return f"{doc['passage']}\nQuestion: {doc['question']}?\nAnswer:"
+        return f"{data_clean(doc['passage'])} Question: {data_clean(doc['question'])}? Answer:"
+        # return f"{doc['passage']}\nQuestion: {doc['question']}?\nAnswer:"
 
     def should_decontaminate(self):
         return True
@@ -68,8 +69,10 @@ class BoolQ(Task):
 
     def construct_requests(self, doc, ctx):
 
-        ll_yes, _ = rf.loglikelihood(ctx, " yes")
-        ll_no, _ = rf.loglikelihood(ctx, " no")
+        # ll_yes, _ = rf.loglikelihood(ctx, " yes")
+        # ll_no, _ = rf.loglikelihood(ctx, " no")
+        ll_yes, _ = rf.loglikelihood(ctx, " Yes")
+        ll_no, _ = rf.loglikelihood(ctx, " No")        
 
         return ll_yes, ll_no
 
@@ -86,7 +89,6 @@ class BoolQ(Task):
 
     def aggregation(self):
         return {"acc": mean}
-
 
 class CommitmentBank(Task):
     VERSION = 1
@@ -458,11 +460,17 @@ class SGWinogradSchemaChallenge(Task):
         passage = general_detokenize(pre + " *{}*".format(doc["span2_text"]) + post)
         noun = doc["span1_text"]
         pronoun = doc["span2_text"]
+        # text = (
+        #     f"Passage: {passage}\n"
+        #     + f'Question: In the passage above, does the pronoun "*{pronoun}*" refer to "*{noun}*"?\n'
+        #     + "Answer:"
+        # )
         text = (
-            f"Passage: {passage}\n"
-            + f'Question: In the passage above, does the pronoun "*{pronoun}*" refer to "*{noun}*"?\n'
+            f"Passage: {passage} "
+            + f'Question: In the passage above, does the pronoun "*{pronoun}*" refer to "*{noun}*"? yes or no? '
             + "Answer:"
-        )
+        )        
+        #  yes or no? 
         return text
 
     def doc_to_target(self, doc):
@@ -470,8 +478,10 @@ class SGWinogradSchemaChallenge(Task):
 
     def construct_requests(self, doc, ctx):
 
+        # ll_yes, _ = rf.loglikelihood(ctx, " yes")
+        # ll_no, _ = rf.loglikelihood(ctx, " no")
         ll_yes, _ = rf.loglikelihood(ctx, " yes")
-        ll_no, _ = rf.loglikelihood(ctx, " no")
+        ll_no, _ = rf.loglikelihood(ctx, " no")        
 
         return ll_yes, ll_no
 
@@ -488,3 +498,24 @@ class SGWinogradSchemaChallenge(Task):
 
     def aggregation(self):
         return {"acc": mean}
+
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text

@@ -55,17 +55,43 @@ class OpenBookQA(MultipleChoiceTask):
     def _process_doc(self, doc):
         out_doc = {
             "id": doc["id"],
-            "query": doc["question_stem"],
-            "choices": doc["choices"]["text"],
+            "query": data_clean(doc["question_stem"]),
+            "choices": [data_clean(x) for x in doc["choices"]["text"]],
             "gold": ["A", "B", "C", "D"].index(doc["answerKey"].strip()),
         }
+        # out_doc = {
+        #     "id": doc["id"],
+        #     "query": doc["question_stem"],
+        #     "choices": doc["choices"]["text"],
+        #     "gold": ["A", "B", "C", "D"].index(doc["answerKey"].strip()),
+        # }
         return out_doc
 
     def doc_to_text(self, doc):
-        return doc["query"]
+        return data_clean(doc["query"])
 
     def should_decontaminate(self):
         return True
 
     def doc_to_decontamination_query(self, doc):
         return doc["query"]
+
+def data_clean(text):
+    import nltk
+    text = text.replace("* ","").replace(" *", "")
+    text = text.replace("`", "'").replace("‘", "'").replace("’", "'").replace("“", "\"").replace("”", "\"")
+    nltk_tokenized = nltk.tokenize.sent_tokenize(text)
+
+    res = []
+    for x in nltk_tokenized:
+        x = x.strip()
+        if not x: # empty line
+            continue
+        if x[0] in ["'", "\""] and len(x) > 1:
+            res.append(x[0] + x[1].upper() + x[2:])
+        else:
+            res.append(x[0].upper() + x[1:])
+    
+    text = " ".join(res)
+    # data["text"] = "<|endoftext|>" + data["text"]
+    return text
