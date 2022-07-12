@@ -65,7 +65,7 @@ class ANLIBase(Task):
         # appended onto the question, with no "Answer:" or even a newline. Do we *really*
         # want to do it exactly as OA did?
 
-        content = add_period(data_clean(doc["premise"])) + " Question: " + add_period(data_clean(doc["hypothesis"])) + \
+        content = add_period(data_clean(doc["premise"]), '.') + " Question: " + add_period(data_clean(doc["hypothesis"]), '.') + \
              " True, False, or Neither? Answer:"
         return content
         # return (
@@ -165,5 +165,5 @@ def data_clean(text):
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 
-def add_period(text):
-    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")
+def add_period(text, punct):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else punct)

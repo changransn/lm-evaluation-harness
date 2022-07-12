@@ -96,5 +96,5 @@ def data_clean(text):
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 
-def add_period(text):
-    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")    
+def add_period(text, punct):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else punct)

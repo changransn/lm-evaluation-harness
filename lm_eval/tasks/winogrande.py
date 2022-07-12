@@ -67,7 +67,7 @@ class Winogrande(Task):
         # Substitute the pronoun in the sentence with the specified option
         # and ignore everything after.
         pronoun_loc = doc["sentence"].index("_")
-        return data_clean(doc["sentence"][:pronoun_loc]) + data_clean(option)
+        return data_clean(doc["sentence"][:pronoun_loc]) + " " +  data_clean(option)
         # return doc["sentence"][:pronoun_loc]) + option
 
     def doc_to_target(self, doc):
@@ -155,5 +155,5 @@ def data_clean(text):
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 
-def add_period(text):
-    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else ".")    
+def add_period(text, punct):
+    return text + ("" if text.strip()[-1] in ['.', '?', ',', '!', "'", "\""] else punct)
