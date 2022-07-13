@@ -281,20 +281,22 @@ def evaluate(
                 decontaminate_suffix, ""
             )  # decontaminated still uses the same metric
         results[task_name][metric] = task.aggregation()[real_metric](items)
-
+        
+    print('results')
+    print(results)
         # hotfix: bleu, chrf, ter seem to be really expensive to bootstrap
         # so we run them less iterations. still looking for a cleaner way to do this
 
-        stderr = lm_eval.metrics.stderr_for_metric(
-            metric=task.aggregation()[real_metric],
-            bootstrap_iters=min(bootstrap_iters, 100)
-            if metric in ["bleu", "chrf", "ter"]
-            else bootstrap_iters,
-        )
-        # bootstrap_iters=min(bootstrap_iters, 1000)
+        # stderr = lm_eval.metrics.stderr_for_metric(
+        #     metric=task.aggregation()[real_metric],
+        #     bootstrap_iters=min(bootstrap_iters, 100)
+        #     if metric in ["bleu", "chrf", "ter"]
+        #     else bootstrap_iters,
+        # )
+        # # bootstrap_iters=min(bootstrap_iters, 1000)
 
-        if stderr is not None:
-            results[task_name][metric + "_stderr"] = stderr(items)
+        # if stderr is not None:
+        #     results[task_name][metric + "_stderr"] = stderr(items)
 
     return {"results": dict(results), "versions": dict(versions)}
 
