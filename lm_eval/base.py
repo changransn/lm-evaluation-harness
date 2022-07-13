@@ -643,14 +643,19 @@ class Task(abc.ABC):
 
 
 class MultipleChoiceTask(Task):
+    # def doc_to_target(self, doc):
+    #     return " " + doc["choices"][doc["gold"]]
     def doc_to_target(self, doc):
-        return " " + doc["choices"][doc["gold"]]
+        return "" + doc["choices"][doc["gold"]]    
 
+    # def construct_requests(self, doc, ctx):
+    #     lls = [
+    #         rf.loglikelihood(ctx, " {}".format(choice))[0] for choice in doc["choices"]
+    #     ]
     def construct_requests(self, doc, ctx):
         lls = [
-            rf.loglikelihood(ctx, " {}".format(choice))[0] for choice in doc["choices"]
+            rf.loglikelihood(ctx, "{}".format(choice))[0] for choice in doc["choices"]
         ]
-
         return lls
 
     def process_results(self, doc, results):

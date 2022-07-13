@@ -41,11 +41,18 @@ class HFLM(BaseLM):
         self.gpt2.eval()
 
         # pretrained tokenizer for neo is broken for now so just hard-coding this to gpt2
-        self.tokenizer = transformers.AutoTokenizer.from_pretrained(
-            "gpt2",
-            revision=revision,
-            subfolder=subfolder,
-        )
+        if pretrained == "facebook/opt-13b":
+            self.tokenizer = transformers.AutoTokenizer.from_pretrained(
+                "facebook/opt-13b",
+                revision=revision,
+                subfolder=subfolder,
+            )       
+        else:     
+            self.tokenizer = transformers.AutoTokenizer.from_pretrained(
+                "gpt2",
+                revision=revision,
+                subfolder=subfolder,
+            )
 
         assert isinstance(
             self.tokenizer,

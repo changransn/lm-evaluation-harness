@@ -53,17 +53,14 @@ class PiQA(MultipleChoiceTask):
             "goal": data_clean(doc["goal"]),
             "choices": [data_clean(doc["sol1"]), data_clean(doc["sol2"])],
             "gold": doc["label"],
-        }        
-        # out_doc = {
-        #     "goal": doc["goal"],
-        #     "choices": [doc["sol1"], doc["sol2"]],
-        #     "gold": doc["label"],
-        # }
+        }
         return out_doc
 
+    # def doc_to_text(self, doc):
+    #     return "Question: " + add_period(doc["goal"], "?") + " Answer:"
     def doc_to_text(self, doc):
-        return "Question: " + add_period(doc["goal"], "?") + " Answer:"
-        # return "Question: " + doc["goal"] + "\nAnswer:"
+        return "Question:" + add_period(doc["goal"], "?") + "Answer:"    
+        
 
     def should_decontaminate(self):
         return True
@@ -94,7 +91,6 @@ def data_clean(text):
     
     # text = " ".join(res)
     text = "".join(res)
-    print(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 

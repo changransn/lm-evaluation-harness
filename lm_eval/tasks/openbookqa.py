@@ -52,19 +52,34 @@ class OpenBookQA(MultipleChoiceTask):
     def test_docs(self):
         return map(self._process_doc, self.dataset["test"])
 
+    # def _process_doc(self, doc):
+    #     out_doc = {
+    #         "id": doc["id"],
+    #         "query": data_clean(doc["question_stem"]),
+    #         "choices": [data_clean(x) for x in doc["choices"]["text"]],
+    #         "gold": ["A", "B", "C", "D"].index(doc["answerKey"].strip()),
+    #     }
+    #     return out_doc
     def _process_doc(self, doc):
+        doc["question_stem"] = data_clean(doc["question_stem"])
+        if doc["question_stem"].strip()[-1] in ['.', '?', ',', '!', "'", "\""]:
+            # FIXME: This spacec only because we use "" in the multichoice task
+            # ************************
+            # Notice! If the ctx ends with .?, then we don't append the space!
+            # ************************
+            choices = ["" + data_clean(x) for x in doc["choices"]["text"]]
+        else:
+            choices = [" " + data_clean(x[0].lower() + x[1:]) for x in doc["choices"]["text"]]
+
         out_doc = {
             "id": doc["id"],
             "query": data_clean(doc["question_stem"]),
-            "choices": [data_clean(x) for x in doc["choices"]["text"]],
+            # **********************
+            # FIXME: This spacec only because we use "" in the multichoice task
+            "choices": choices,
+            # **********************
             "gold": ["A", "B", "C", "D"].index(doc["answerKey"].strip()),
         }
-        # out_doc = {
-        #     "id": doc["id"],
-        #     "query": doc["question_stem"],
-        #     "choices": doc["choices"]["text"],
-        #     "gold": ["A", "B", "C", "D"].index(doc["answerKey"].strip()),
-        # }
         return out_doc
 
     def doc_to_text(self, doc):
@@ -99,7 +114,7 @@ def data_clean(text):
     
     # text = " ".join(res)
     text = "".join(res)
-    print(res)
+    # print(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 

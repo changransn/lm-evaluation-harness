@@ -67,13 +67,15 @@ class CoLA(Task):
     def validation_docs(self):
         return self.dataset["validation"]
 
+    # def doc_to_text(self, doc):
+    #     return "{} Question: Does this sentence make sense? Answer:".format(
+    #         add_period(data_clean(doc["sentence"]), '.')
+    #     )     
     def doc_to_text(self, doc):
-        return "{} Question: Does this sentence make sense? Answer:".format(
+        return "{}Question:Does this sentence make sense?Yes or No?Answer:".format(
             add_period(data_clean(doc["sentence"]), '.')
-        )        
-        # return "{}\nQuestion: Does this sentence make sense?\nAnswer:".format(
-        #     doc["sentence"]
-        # )
+        )         
+
 
     def should_decontaminate(self):
         return True
@@ -81,16 +83,23 @@ class CoLA(Task):
     def doc_to_decontamination_query(self, doc):
         return doc["sentence"]
 
+    # def doc_to_target(self, doc):
+    #     return " {}".format({1: "Yes", 0: "No"}[doc["label"]])
     def doc_to_target(self, doc):
-        # return " {}".format({1: "yes", 0: "no"}[doc["label"]])
-        return " {}".format({1: "Yes", 0: "No"}[doc["label"]])
+        return "{}".format({1: "Yes", 0: "No"}[doc["label"]])    
 
+    # def construct_requests(self, doc, ctx):
+    #     # ll_true, _ = rf.loglikelihood(ctx, " yes")
+    #     # ll_false, _ = rf.loglikelihood(ctx, " no")
+    #     ll_true, _ = rf.loglikelihood(ctx, " Yes")
+    #     ll_false, _ = rf.loglikelihood(ctx, " No")        
+    #     return ll_true, ll_false
     def construct_requests(self, doc, ctx):
         # ll_true, _ = rf.loglikelihood(ctx, " yes")
         # ll_false, _ = rf.loglikelihood(ctx, " no")
-        ll_true, _ = rf.loglikelihood(ctx, " Yes")
-        ll_false, _ = rf.loglikelihood(ctx, " No")        
-        return ll_true, ll_false
+        ll_true, _ = rf.loglikelihood(ctx, "Yes")
+        ll_false, _ = rf.loglikelihood(ctx, "No")        
+        return ll_true, ll_false    
 
     def process_results(self, doc, results):
         ll_true, ll_false = results
@@ -183,30 +192,46 @@ class MNLI(Task):
         if self.has_test_docs():
             return self.dataset["test_matched"]
 
+    # def doc_to_text(self, doc):
+    #     doc["premise"] = data_clean(doc["premise"])
+    #     doc["hypothesis"] = data_clean(doc["hypothesis"])
+    #     return "{} Question: {} True, False or Neither? Answer:".format(
+    #         add_period(doc["premise"], '.'),
+    #         add_period(doc["hypothesis"].strip(), '.'),
+    #     )  
     def doc_to_text(self, doc):
         doc["premise"] = data_clean(doc["premise"])
         doc["hypothesis"] = data_clean(doc["hypothesis"])
-        return "{} Question: {} True, False or Neither? Answer:".format(
-            add_period(doc["premise"], '.'),
+        return "{}Question:{}True, False or Neither?Answer:".format(
+            add_period(doc["premise"].strip(), '.'),
             add_period(doc["hypothesis"].strip(), '.'),
-        )        
-        # return "{}\nQuestion: {} True, False or Neither?\nAnswer:".format(
-        #     doc["premise"],
-        #     doc["hypothesis"].strip()
-        #     + ("" if doc["hypothesis"].strip().endswith(".") else "."),
-        # )
+        )         
+
+
+    # def doc_to_target(self, doc):
+    #     # True = entailment
+    #     # False = contradiction
+    #     # Neither = neutral
+    #     return " {}".format({0: "True", 1: "Neither", 2: "False"}[doc["label"]])
 
     def doc_to_target(self, doc):
         # True = entailment
         # False = contradiction
         # Neither = neutral
-        return " {}".format({0: "True", 1: "Neither", 2: "False"}[doc["label"]])
+        return "{}".format({0: "True", 1: "Neither", 2: "False"}[doc["label"]])
+
+
+    # def construct_requests(self, doc, ctx):
+    #     ll_true, _ = rf.loglikelihood(ctx, " True")
+    #     ll_neither, _ = rf.loglikelihood(ctx, " Neither")
+    #     ll_false, _ = rf.loglikelihood(ctx, " False")
+    #     return ll_true, ll_neither, ll_false
 
     def construct_requests(self, doc, ctx):
-        ll_true, _ = rf.loglikelihood(ctx, " True")
-        ll_neither, _ = rf.loglikelihood(ctx, " Neither")
-        ll_false, _ = rf.loglikelihood(ctx, " False")
-        return ll_true, ll_neither, ll_false
+        ll_true, _ = rf.loglikelihood(ctx, "True")
+        ll_neither, _ = rf.loglikelihood(ctx, "Neither")
+        ll_false, _ = rf.loglikelihood(ctx, "False")
+        return ll_true, ll_neither, ll_false    
 
     def process_results(self, doc, results):
         gold = doc["label"]
@@ -358,26 +383,35 @@ class RTE(Task):
     def validation_docs(self):
         return self.dataset["validation"]
 
+    # def doc_to_text(self, doc):
+    #     return "{} Question: {} True or False? Answer:".format(
+    #         add_period(data_clean(doc["sentence1"]), '.'),
+    #         add_period(data_clean(doc["sentence2"]), '.'),
+    #     )
     def doc_to_text(self, doc):
-        return "{} Question: {} True or False? Answer:".format(
+        return "{}Question:{}True or False?Answer:".format(
             add_period(data_clean(doc["sentence1"]), '.'),
             add_period(data_clean(doc["sentence2"]), '.'),
-        )
-        
-        # return "{}\nQuestion: {} True or False?\nAnswer:".format(
-        #     doc["sentence1"],
-        #     doc["sentence2"],
-        # )
+        )    
 
+
+    # def doc_to_target(self, doc):
+    #     # 0 = entailment
+    #     # 1 = not_entailment
+    #     return " {}".format({0: "True", 1: "False"}[doc["label"]])
     def doc_to_target(self, doc):
         # 0 = entailment
         # 1 = not_entailment
-        return " {}".format({0: "True", 1: "False"}[doc["label"]])
+        return "{}".format({0: "True", 1: "False"}[doc["label"]])    
 
+    # def construct_requests(self, doc, ctx):
+    #     ll_true, _ = rf.loglikelihood(ctx, " True")
+    #     ll_false, _ = rf.loglikelihood(ctx, " False")
+    #     return ll_true, ll_false
     def construct_requests(self, doc, ctx):
-        ll_true, _ = rf.loglikelihood(ctx, " True")
-        ll_false, _ = rf.loglikelihood(ctx, " False")
-        return ll_true, ll_false
+        ll_true, _ = rf.loglikelihood(ctx, "True")
+        ll_false, _ = rf.loglikelihood(ctx, "False")
+        return ll_true, ll_false    
 
     def process_results(self, doc, results):
         ll_true, ll_false = results
@@ -600,7 +634,7 @@ def data_clean(text):
     
     # text = " ".join(res)
     text = "".join(res)
-    print(res)
+
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 

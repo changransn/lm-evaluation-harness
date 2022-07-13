@@ -50,8 +50,8 @@ class HellaSwag(MultipleChoiceTask):
         return map(self._process_doc, self.dataset["validation"])
 
     def _process_doc(self, doc):
-        # ctx = doc["ctx_a"] + " " + doc["ctx_b"].capitalize()
-        ctx = doc["ctx_a"] + " " + doc["ctx_b"]
+        ctx = doc["ctx_a"] + " " + doc["ctx_b"].capitalize()
+        # ctx = doc["ctx_a"] + " " + doc["ctx_b"]
         out_doc = {
             "query": data_clean(self.preprocess(doc["activity_label"] + ": " + ctx)),
             "choices": [data_clean(self.preprocess(ending)) for ending in doc["endings"]],

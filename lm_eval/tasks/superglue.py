@@ -54,9 +54,12 @@ class BoolQ(Task):
     def validation_docs(self):
         return self.dataset["validation"]
 
+    # def doc_to_text(self, doc):
+    #     return f"{add_period(data_clean(doc['passage']), '.')} Question: {add_period(data_clean(doc['question']), '?')} Answer:"
+        
     def doc_to_text(self, doc):
-        return f"{add_period(data_clean(doc['passage']), '.')} Question: {add_period(data_clean(doc['question']), '?')} Answer:"
-        # return f"{doc['passage']}\nQuestion: {doc['question']}?\nAnswer:"
+        return f"{add_period(data_clean(doc['passage']), '.')}Question:{add_period(data_clean(doc['question']), '?')}Answer:"
+                
 
     def should_decontaminate(self):
         return True
@@ -64,17 +67,27 @@ class BoolQ(Task):
     def doc_to_decontamination_query(self, doc):
         return doc["passage"]
 
+    # def doc_to_target(self, doc):
+    #     return " " + yesno(doc["label"])
     def doc_to_target(self, doc):
-        return " " + yesno(doc["label"])
+        return "" + yesno(doc["label"])    
 
+    # def construct_requests(self, doc, ctx):
+
+    #     # ll_yes, _ = rf.loglikelihood(ctx, " yes")
+    #     # ll_no, _ = rf.loglikelihood(ctx, " no")
+    #     ll_yes, _ = rf.loglikelihood(ctx, " Yes")
+    #     ll_no, _ = rf.loglikelihood(ctx, " No")        
+
+    #     return ll_yes, ll_no
     def construct_requests(self, doc, ctx):
 
         # ll_yes, _ = rf.loglikelihood(ctx, " yes")
         # ll_no, _ = rf.loglikelihood(ctx, " no")
-        ll_yes, _ = rf.loglikelihood(ctx, " Yes")
-        ll_no, _ = rf.loglikelihood(ctx, " No")        
+        ll_yes, _ = rf.loglikelihood(ctx, "Yes")
+        ll_no, _ = rf.loglikelihood(ctx, "No")        
 
-        return ll_yes, ll_no
+        return ll_yes, ll_no    
 
     def process_results(self, doc, results):
         ll_yes, ll_no = results
@@ -452,6 +465,21 @@ class SGWinogradSchemaChallenge(Task):
     def validation_docs(self):
         return self.dataset["validation"]
 
+    # def doc_to_text(self, doc):
+    #     raw_passage = doc["text"]
+    #     # NOTE: HuggingFace span indices are word-based not character-based.
+    #     pre = " ".join(raw_passage.split()[: doc["span2_index"]])
+    #     post = raw_passage[len(pre) + len(doc["span2_text"]) + 1 :]
+    #     passage = general_detokenize(pre + " *{}*".format(doc["span2_text"]) + post)
+    #     noun = doc["span1_text"]
+    #     pronoun = doc["span2_text"]
+    #     text = (
+    #         f"Passage: {passage} "
+    #         + f'Question: In the passage above, does the pronoun "*{pronoun}*" refer to "*{noun}*"? yes or no? '
+    #         + "Answer:"
+    #     )        
+    #     return text
+
     def doc_to_text(self, doc):
         raw_passage = doc["text"]
         # NOTE: HuggingFace span indices are word-based not character-based.
@@ -460,30 +488,26 @@ class SGWinogradSchemaChallenge(Task):
         passage = general_detokenize(pre + " *{}*".format(doc["span2_text"]) + post)
         noun = doc["span1_text"]
         pronoun = doc["span2_text"]
-        # text = (
-        #     f"Passage: {passage}\n"
-        #     + f'Question: In the passage above, does the pronoun "*{pronoun}*" refer to "*{noun}*"?\n'
-        #     + "Answer:"
-        # )
         text = (
-            f"Passage: {passage} "
-            + f'Question: In the passage above, does the pronoun "*{pronoun}*" refer to "*{noun}*"? yes or no? '
+            f"Passage:{add_period(passage, '.')}"
+            + f'Question:In the passage above, does the pronoun "*{pronoun}*" refer to "*{noun}*"?Yes or No?'
             + "Answer:"
         )        
-        #  yes or no? 
-        return text
+        return text    
 
+    # def doc_to_target(self, doc):
+    #     return " " + yesno(doc["label"])
     def doc_to_target(self, doc):
-        return " " + yesno(doc["label"])
+        return "" + yesno(doc["label"])    
 
+    # def construct_requests(self, doc, ctx):
+    #     ll_yes, _ = rf.loglikelihood(ctx, " yes")
+    #     ll_no, _ = rf.loglikelihood(ctx, " no")        
+    #     return ll_yes, ll_no
     def construct_requests(self, doc, ctx):
-
-        # ll_yes, _ = rf.loglikelihood(ctx, " yes")
-        # ll_no, _ = rf.loglikelihood(ctx, " no")
-        ll_yes, _ = rf.loglikelihood(ctx, " yes")
-        ll_no, _ = rf.loglikelihood(ctx, " no")        
-
-        return ll_yes, ll_no
+        ll_yes, _ = rf.loglikelihood(ctx, "Yes")
+        ll_no, _ = rf.loglikelihood(ctx, "No")        
+        return ll_yes, ll_no    
 
     def process_results(self, doc, results):
         ll_yes, ll_no = results
@@ -522,7 +546,7 @@ def data_clean(text):
     
     # text = " ".join(res)
     text = "".join(res)
-    print(res)
+    # print(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 

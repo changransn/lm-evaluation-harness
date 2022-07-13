@@ -51,6 +51,22 @@ class ARCEasy(MultipleChoiceTask):
     def test_docs(self):
         return map(self._process_doc, self.dataset["test"])
 
+    # def _process_doc(self, doc):
+    #     # NOTE: Some `doc["answerKey"]`s are in numeric string format being one
+    #     # of {'1', '2', '3', '4', '5'}. We map them back to letters.
+    #     num_to_letter = {"1": "A", "2": "B", "3": "C", "4": "D", "5": "E"}
+    #     doc["answerKey"] = num_to_letter.get(doc["answerKey"], doc["answerKey"])
+
+    #     doc["question"] = data_clean(doc["question"])
+    #     doc["choices"]["text"] = [data_clean(x) for x in doc["choices"]["text"]]
+
+    #     # "query": "Question: " + doc["question"] + "\nAnswer:",
+    #     out_doc = {
+    #         "id": doc["id"],
+    #         "query": "Question: " + add_period(doc["question"], "?") + " Answer:",
+    #         "choices": doc["choices"]["text"],
+    #         "gold": ["A", "B", "C", "D", "E"].index(doc["answerKey"]),
+    #     }
     def _process_doc(self, doc):
         # NOTE: Some `doc["answerKey"]`s are in numeric string format being one
         # of {'1', '2', '3', '4', '5'}. We map them back to letters.
@@ -63,10 +79,10 @@ class ARCEasy(MultipleChoiceTask):
         # "query": "Question: " + doc["question"] + "\nAnswer:",
         out_doc = {
             "id": doc["id"],
-            "query": "Question: " + add_period(doc["question"], "?") + " Answer:",
+            "query": "Question:" + add_period(doc["question"], "?") + "Answer:",
             "choices": doc["choices"]["text"],
             "gold": ["A", "B", "C", "D", "E"].index(doc["answerKey"]),
-        }
+        }    
         
         return out_doc
 
@@ -107,7 +123,7 @@ def data_clean(text):
     
     # text = " ".join(res)
     text = "".join(res)
-    print(res)
+    
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 
