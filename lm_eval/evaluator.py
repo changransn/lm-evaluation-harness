@@ -19,11 +19,12 @@ def simple_evaluate(
     device=None,
     no_cache=False,
     limit=None,
-    bootstrap_iters=100000,
+    bootstrap_iters=100,
     description_dict=None,
     check_integrity=False,
     decontamination_ngrams_path=None,
 ):
+# bootstrap_iters=100000,
 
     """Instantiate and evaluate a model on a list of tasks.
 
@@ -119,7 +120,7 @@ def evaluate(
     provide_description=None,
     num_fewshot=0,
     limit=None,
-    bootstrap_iters=100000,
+    bootstrap_iters=100,
     description_dict=None,
     decontamination_ngrams_path=None,
 ):
@@ -286,10 +287,11 @@ def evaluate(
 
         stderr = lm_eval.metrics.stderr_for_metric(
             metric=task.aggregation()[real_metric],
-            bootstrap_iters=min(bootstrap_iters, 1000)
+            bootstrap_iters=min(bootstrap_iters, 100)
             if metric in ["bleu", "chrf", "ter"]
             else bootstrap_iters,
         )
+        # bootstrap_iters=min(bootstrap_iters, 1000)
 
         if stderr is not None:
             results[task_name][metric + "_stderr"] = stderr(items)
@@ -309,7 +311,8 @@ def make_table(result_dict):
     values = []
 
     for k, dic in result_dict["results"].items():
-        version = result_dict["versions"][k]
+        # version = result_dict["versions"][k]
+        version = '-1'
         for m, v in dic.items():
             if m.endswith("_stderr"):
                 continue

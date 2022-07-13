@@ -104,12 +104,18 @@ def data_clean(text):
         x = x.strip()
         if not x: # empty line
             continue
-        if x[0] in ["'", "\""] and len(x) > 1:
-            res.append(x[0] + x[1].upper() + x[2:])
-        else:
-            res.append(x[0].upper() + x[1:])
+        # FIXIT: only for debugging!!
+        res.append(x)
+        # FIXIT: only for debugging!!
+        #            
+        # if x[0] in ["'", "\""] and len(x) > 1:
+        #     res.append(x[0] + x[1].upper() + x[2:])
+        # else:
+        #     res.append(x[0].upper() + x[1:])
     
-    text = " ".join(res)
+    # text = " ".join(res)
+    text = "".join(res)
+    print(res)
     # data["text"] = "<|endoftext|>" + data["text"]
     return text
 

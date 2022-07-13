@@ -60,6 +60,8 @@ def main():
 
     os.makedirs(args.output_base_path, exist_ok=True)
     for task_name, task in task_dict.items():
+        print("Task Name")
+        print(task_name)
         rnd = random.Random()
         rnd.seed(args.seed)
 
