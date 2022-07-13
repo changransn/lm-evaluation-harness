@@ -103,7 +103,7 @@ def data_clean(text):
         # else:
         #     res.append(x[0].upper() + x[1:])
     
-    text = " ".join(res)
+    text = "".join(res)
     # text = "".join(res)
     # print(res)
     # data["text"] = "<|endoftext|>" + data["text"]

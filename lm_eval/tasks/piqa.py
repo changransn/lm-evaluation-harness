@@ -56,10 +56,8 @@ class PiQA(MultipleChoiceTask):
         }
         return out_doc
 
-    # def doc_to_text(self, doc):
-    #     return "Question: " + add_period(doc["goal"], "?") + " Answer:"
     def doc_to_text(self, doc):
-        return "Question:" + add_period(doc["goal"], "?") + "Answer:"    
+        return "Question: " + add_period(doc["goal"], "?") + "Answer:"    
         
 
     def should_decontaminate(self):

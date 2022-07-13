@@ -103,8 +103,13 @@ def main():
                 tgt = task.doc_to_target(
                     doc=doc
                 )
+                req = task.construct_requests(
+                    doc=doc, ctx="CONTEXT"
+                )
                 f.write("**Target**\n")
                 f.write(tgt + "\n")
+                f.write("**Request**\n")
+                f.write("\n".join([str(x) for x in req]) + "\n\n")                
                 
 
                 # if task_name == "lambada":

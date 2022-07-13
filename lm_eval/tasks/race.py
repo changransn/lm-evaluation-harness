@@ -105,33 +105,19 @@ class RACE(Task):
     def last_problem(cls, doc):
         return doc["problems"][-1]
 
-    # def doc_to_text(self, doc):
-    #     doc["article"] = data_clean(doc["article"])
-    #     text = "Article: " + add_period(doc["article"], '.') + " "
-    #     for idx in range(len(doc["problems"])):
-    #         doc["problems"][idx]["question"] = doc["problems"][idx]["question"].replace("  _  .", "?")
-
-    #     for problem in doc["problems"][:-1]:
-    #         problem["question"] = data_clean(problem["question"])
-    #         question = "Question: " + add_period(problem["question"], "?") + " "
-    #         answer = "Answer: " + add_period(self.get_answer_option(problem), '.') + " "                
-    #         text += question + answer
-    #     text += "Question: " + add_period(self.last_problem(doc)["question"], '?') + " "
-    #     text += "Answer:"
-    #     return text
 
     def doc_to_text(self, doc):
         doc["article"] = data_clean(doc["article"])
-        text = "Article:" + add_period(doc["article"], '.') + ""
+        text = "Article: " + add_period(doc["article"], '.') + ""
         for idx in range(len(doc["problems"])):
             doc["problems"][idx]["question"] = doc["problems"][idx]["question"].replace("  _  .", "?")
 
         for problem in doc["problems"][:-1]:
             problem["question"] = data_clean(problem["question"])
-            question = "Question:" + add_period(problem["question"], "?") + ""
-            answer = "Answer:" + add_period(self.get_answer_option(problem), '.') + ""                
+            question = "Question: " + add_period(problem["question"], "?") + ""
+            answer = "Answer: " + add_period(self.get_answer_option(problem), '.') + ""                
             text += question + answer
-        text += "Question:" + add_period(self.last_problem(doc)["question"], '?') + ""
+        text += "Question: " + add_period(self.last_problem(doc)["question"], '?') + ""
         text += "Answer:"
         return text    
 
@@ -142,10 +128,10 @@ class RACE(Task):
     def doc_to_decontamination_query(self, doc):
         return doc["article"]
 
-    # def doc_to_target(self, doc):
-    #     return " " + self.get_answer_option(self.last_problem(doc))
     def doc_to_target(self, doc):
-        return "" + self.get_answer_option(self.last_problem(doc))    
+        return " " + self.get_answer_option(self.last_problem(doc))
+    # def doc_to_target(self, doc):
+    #     return "" + self.get_answer_option(self.last_problem(doc))    
 
     # def construct_requests(self, doc, ctx):
     #     """Uses RequestFactory to construct Requests and returns an iterable of
@@ -160,10 +146,9 @@ class RACE(Task):
     #     """
     #     problem = self.last_problem(doc)
     #     ll_choices = [
-    #         rf.loglikelihood(ctx, " " + problem["options"][i])[0] for i in range(4)
+    #         rf.loglikelihood(ctx, "" + problem["options"][i])[0] for i in range(4)
     #     ]
-    #     return ll_choices
-
+    #     return ll_choices   
     def construct_requests(self, doc, ctx):
         """Uses RequestFactory to construct Requests and returns an iterable of
         Requests which will be sent to the LM.
@@ -177,9 +162,10 @@ class RACE(Task):
         """
         problem = self.last_problem(doc)
         ll_choices = [
-            rf.loglikelihood(ctx, "" + problem["options"][i])[0] for i in range(4)
+            rf.loglikelihood(ctx, " " + problem["options"][i])[0] for i in range(4)
         ]
         return ll_choices    
+
 
     def process_results(self, doc, results):
         """Take a single document and the LM results and evaluates, returning a

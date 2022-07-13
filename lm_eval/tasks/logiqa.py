@@ -52,42 +52,6 @@ class LogiQA(MultipleChoiceTask):
     def test_docs(self):
         return map(self._process_doc, self.dataset["test"])
 
-    # def _process_doc(self, doc):
-    #     def format_example(doc, choices):
-    #         """
-    #         Passage: <passage>
-    #         Question: <question>
-    #         Choices:
-    #         A. <choice1>
-    #         B. <choice2>
-    #         C. <choice3>
-    #         D. <choice4>
-    #         Answer:
-    #         """
-    #         prompt = "Passage: " + doc["context"] + " "
-    #         prompt += "Question: " + doc["question"] + " Choices: "
-    #         for choice, option in zip(choices, doc["options"]):
-    #             prompt += f"{choice.upper()}. {option} "
-    #         prompt += "Answer:"
-    #         return prompt            
-    #         # prompt = "Passage: " + doc["context"] + "\n"
-    #         # prompt += "Question: " + doc["question"] + "\nChoices:\n"
-    #         # for choice, option in zip(choices, doc["options"]):
-    #         #     prompt += f"{choice.upper()}. {option}\n"
-    #         # prompt += "Answer:"
-    #         # return prompt
-
-    #     choices = ["a", "b", "c", "d"]
-    #     doc["context"] = add_period(data_clean(doc["context"]), '.')
-    #     doc["question"] = add_period(data_clean(doc["question"]), '?')
-    #     doc["options"] = [add_period(data_clean(x), '.') for x in doc["options"]]
-    #     return {
-    #         "passage": doc["context"],  # Used for decontamination
-    #         "query": format_example(doc, choices),
-    #         "choices": doc["options"],
-    #         "gold": choices.index(doc["label"]),
-    #     }
-
     def _process_doc(self, doc):
         def format_example(doc, choices):
             """
@@ -100,8 +64,8 @@ class LogiQA(MultipleChoiceTask):
             D. <choice4>
             Answer:
             """
-            prompt = "Passage:" + doc["context"] + ""
-            prompt += "Question:" + doc["question"] + "Choices:"
+            prompt = "Passage: " + doc["context"] + ""
+            prompt += "Question: " + doc["question"] + "Choices: "
             for choice, option in zip(choices, doc["options"]):
                 prompt += f"{choice.upper()}. {option}"
             prompt += "Answer:"

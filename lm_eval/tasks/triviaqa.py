@@ -51,11 +51,8 @@ class TriviaQA(Task):
     def test_docs(self):
         raise NotImplementedError()
 
-    # def doc_to_text(self, doc):
-    #     return f"Question: {add_period(data_clean(doc['question']), '?')} Answer:"        
-        
     def doc_to_text(self, doc):
-        return f"Question:{add_period(data_clean(doc['question']), '?')}Answer:"        
+        return f"Question: {add_period(data_clean(doc['question']), '?')}Answer: "        
                 
 
     def should_decontaminate(self):
@@ -64,10 +61,8 @@ class TriviaQA(Task):
     def doc_to_decontamination_query(self, doc):
         return doc["question"]
 
-    # def doc_to_target(self, doc):
-    #     return " " + data_clean(doc["answer"]["value"])
     def doc_to_target(self, doc):
-        return "" + data_clean(doc["answer"]["value"])    
+        return " " + data_clean(doc["answer"]["value"])    
 
     def _remove_prefixes(self, aliases):
         # Optimization: Remove any alias that has a strict prefix elsewhere in the list
@@ -79,17 +74,11 @@ class TriviaQA(Task):
                 ret.append(alias)
         return ret
 
-    # def construct_requests(self, doc, ctx):
-    #     ret = []
-    #     for alias in self._remove_prefixes(doc["answer"]["aliases"]):
-    #         _, is_prediction = rf.loglikelihood(ctx, " " + alias)
-    #         ret.append(is_prediction)
-    #     return ret
     def construct_requests(self, doc, ctx):
         ret = []
         for alias in self._remove_prefixes(doc["answer"]["aliases"]):
             alias = data_clean(alias)
-            _, is_prediction = rf.loglikelihood(ctx, "" + alias)
+            _, is_prediction = rf.loglikelihood(ctx, " " + alias)
             ret.append(is_prediction)
         return ret    
 
