@@ -52,7 +52,7 @@ class TriviaQA(Task):
         raise NotImplementedError()
 
     def doc_to_text(self, doc):
-        return f"Question: {add_period(data_clean(doc['question']), '?')}Answer: "        
+        return f"Question: {add_period(data_clean(doc['question']), '?')}Answer:"        
                 
 
     def should_decontaminate(self):
