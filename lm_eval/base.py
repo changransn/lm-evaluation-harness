@@ -607,7 +607,7 @@ class Task(abc.ABC):
                 "WARNING: provide_description is deprecated and will be removed in a future version in favor of description_dict"
             )
 
-        description = description + "\n\n" if description else ""
+        description = description + "\t" if description else ""
 
         if num_fewshot == 0:
             labeled_examples = ""
@@ -628,15 +628,25 @@ class Task(abc.ABC):
                 # get rid of the doc that's the one we're evaluating, if it's in the fewshot
                 fewshotex = [x for x in fewshotex if x != doc][:num_fewshot]
 
+            # labeled_examples = (
+            #     "\n\n".join(
+            #         [
+            #             self.doc_to_text(doc) + self.doc_to_target(doc)
+            #             for doc in fewshotex
+            #         ]
+            #     )
+            #     + "\n\n"
+            # )
+
             labeled_examples = (
-                "\n\n".join(
+                "\t".join(
                     [
                         self.doc_to_text(doc) + self.doc_to_target(doc)
                         for doc in fewshotex
                     ]
                 )
-                + "\n\n"
-            )
+                + "\t"
+            )            
 
         example = self.doc_to_text(doc)
         return description + labeled_examples + example
